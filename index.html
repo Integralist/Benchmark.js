@@ -1,0 +1,67 @@
+<!doctype html>
+<html dir="ltr" lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title></title>
+    </head>
+    <body>
+        <p>Check the console.logs for the data from Benchmark.js (you may well need to wait a little bit for the tests to finish)</p>
+        <div id='mydiv'></div>
+        
+        <script src="benchmark.js"></script>
+        <script>
+        // BASIC EXAMPLE
+
+            function benchInsertNode(){
+                mydiv.insertAdjacentHTML('beforeend', '<span></span>');
+            }
+
+            var configuration = {
+                'setup': function(){
+                    var mydiv = document.getElementById('mydiv');
+                },
+                'teardown': function(){
+                    mydiv.innerHTML = '';
+                }
+            };
+            
+            var bench = new Benchmark('insertNode', benchInsertNode, configuration);
+                bench.run({ async: true, });
+                bench.on('complete', function (event) {
+                    console.group('Single Benchmark')
+                        console.log('this: ', this); // Same as 'bench'
+                        console.log('event: ', event);
+                        console.log('Bench object: ', bench);
+                    console.groupEnd()
+                });
+
+        // SUITE EXAMPLE
+        
+            var suite = new Benchmark.Suite;
+
+            suite.add('RegExp#test', function() {
+                /o/.test('Hello World!');
+            })
+            .add('String#indexOf', function() {
+                'Hello World!'.indexOf('o') > -1;
+            })
+            .add('String#match', function() {
+                !!'Hello World!'.match(/o/);
+            })
+            // add listeners
+            .on('cycle', function(event) {
+                console.group('Benchmark Suite - Process')
+                    console.log(String(event.target));
+                console.groupEnd()
+            })
+            .on('complete', function() {
+                console.group('Benchmark Suite Results')
+                    console.log('Fastest is ' + this.filter('fastest').pluck('name'));
+                console.groupEnd()
+            })
+            // run async
+            .run({ 'async': true });
+        </script>
+    </body>
+</html>
